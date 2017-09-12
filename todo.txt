@@ -1,0 +1,38 @@
+what we got
+1> task frame work
+2> fixed queue dispatcher
+3> generic timer
+4> tcp client/server base
+5> ipv4 tcp server
+6> unix domain tcp server
+7> ipv4 tcp client
+8> unix domain tcp client
+9> idle task
+10> watcher abstraction
+11> circular buffer
+12> stream
+13> cli
+14> cli telnet interface
+15> except fd : modified libev
+16> udp ipv4/unix domain socket
+17> command line options
+18> sbuf_t
+19> serial
+20> trace framework
+21> modbus RTU slave
+22> cli serial interface
+23> priority based request queue
+
+==================================
+5> completion event (from external process)
+6> pipe
+8> configuration
+11> RS485
+9> modbus TCP slave
+11> modbus TCP master
+12> modbus RTU master
+13> RTP
+14> SIP
+15> HTTP
+16> SSL/SSH
+17> file system utilities

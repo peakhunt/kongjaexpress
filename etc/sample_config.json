@@ -1,0 +1,21 @@
+{
+	"file_info": {
+		"description" : "a configuration file for 60G AP Misc Daemon",
+			"version" : "0.01",
+			"Last_Revision" : "2015-06-25 17:06:32"
+	},
+	"ping_task_config": {
+		"ping_interval_when_not_connectd":        3000,
+		"ping_interval_when_connected":           5000,
+		"num_responses_to_move_to_connected":     3,
+		"num_misses_to_move_to_not_connected":    3,
+		"ping_target":                            "192.168.1.80",
+		"target_interface":                       "fm1-mac9",
+		"ping_data_to_send":                      "hello from 60g AP",
+		"ping_task_led_blink_interval":           300
+	},
+	"intf_mon_task_config": {
+		"intf":           "fm1-mac3",
+		"mon_interval":   1000
+	}
+}
