@@ -24,7 +24,7 @@ src/net/tcp_server_unix_domain.c                    \
 src/net/tcp_connector.c                             \
 src/net/sock_util.c                                 \
 src/net/udp_socket.c                                \
-src/serial/serial.c																	\
+src/serial/serial.c                                 \
 src/stream/stream.c                                 \
 src/cli/cli.c                                       \
 src/cli/cli_telnet.c                                \
@@ -39,7 +39,7 @@ src/protocols/modbus/modbus_func_input.c            \
 src/protocols/modbus/modbus_rtu_request_handler.c   \
 src/protocols/modbus/modbus_rtu_slave.c             \
 src/protocols/modbus/modbus_tcp_slave.c             \
-src/protocols/modbus/mbap_reader.c             			\
+src/protocols/modbus/mbap_reader.c                  \
 src/kongja_express.c                                \
 src/demo/tcp_server_test.c                          \
 src/demo/tcp_client_test.c                          \
