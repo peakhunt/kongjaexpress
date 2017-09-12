@@ -21,6 +21,7 @@ Libev is statically linked. So
 
 1. cd libev/libev
 2. ./hkim_config.sh
+3. make; make install
 3. cd ../../
 4. make
 
