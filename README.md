@@ -19,10 +19,10 @@ Additionally I am planning to replace Libev with something more simpler in the f
 ## How To Build
 Libev is statically linked. So
 
-  a) cd libev/libev
-  b) ./hkim_configure.sh
-  c) cd ../../
-  d) make
+1. cd libev/libev
+2. ./hkim_config.sh
+3. cd ../../
+4. make
 
   demo binary is build/kongjaexpress, which is a simple CLI server at
   the moment
