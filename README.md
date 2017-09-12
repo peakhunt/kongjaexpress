@@ -12,3 +12,14 @@ The basic philosophy of KongJa Express is based on NodeJS like functional progra
 
 Libev here is modified to support exceptfd. It is a simple change but for some reasons, original author refuses to implement it. But we need event on exceptfd on embedded linux environment to detect GPIO event.
 Additionally I am planning to replace Libev with something more simpler in the future.
+
+How To Build
+Libev is statically linked. So
+
+  a) cd libev/libev
+  b) ./hkim_configure.sh
+  c) cd ../../
+  d) make
+
+  demo binary is build/kongjaexpress, which is a simple CLI server at
+  the moment
