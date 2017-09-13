@@ -77,8 +77,8 @@ modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connect
       //
       // finish TX frame for RTU slave by updating response length
       //
-      mbap->frame[5]  = (uint8_t)(rsp_len >> 8 & 0xff);
-      mbap->frame[4]  = (uint8_t)(rsp_len >> 0 & 0xff);
+      mbap->frame[4]  = (uint8_t)(rsp_len >> 8 & 0xff);
+      mbap->frame[5]  = (uint8_t)(rsp_len >> 0 & 0xff);
 
       rsp_len += 6;   // mbap header
 
@@ -92,6 +92,10 @@ modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connect
         TRACE(MB_TCP_SLAVE, "tx failed\n");
       }
     }
+  }
+  else
+  {
+    TRACE(MB_TCP_SLAVE, "address mismatch mine: %d, requested: %d\n", slave->my_address, mbap->uid);
   }
 }
 
