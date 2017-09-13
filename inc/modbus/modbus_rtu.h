@@ -11,8 +11,6 @@
 
 #include <stdint.h>
 
-#define MB_RTU_MAX_PDU_SIZE             512     // just big enough
-
 #define MB_PDU_SIZE_MAX                 253
 #define MB_PDU_SIZE_MIN                 1
 #define MB_PDU_FUNC_OFF                 0
@@ -81,10 +79,6 @@ typedef struct __modbus_ctx ModbusCTX;
 
 struct __modbus_ctx
 {
-  uint8_t               data_buffer[MB_RTU_MAX_PDU_SIZE];
-  uint16_t              data_ndx;
-  uint16_t              tx_ndx;
-
   uint32_t              rx_buffer_overflow;
   uint32_t              rx_crc_error;
   uint32_t              rx_frames;
@@ -101,32 +95,6 @@ struct __modbus_ctx
   MBErrorCode           (*discrete_cb)(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress,
                             uint16_t usNRegs);
 };
-
-static inline void
-mb_ctx_reset_data_buffer(ModbusCTX* ctx)
-{
-  ctx->data_ndx   = 0;
-  ctx->tx_ndx     = 0;
-}
-
-static inline void
-mb_ctx_put_data(ModbusCTX* ctx, uint8_t b)
-{
-  ctx->data_buffer[ctx->data_ndx] = b;
-  ctx->data_ndx++;
-}
-
-static inline uint16_t
-mb_ctx_rx_len(ModbusCTX* ctx)
-{
-  return ctx->data_ndx;
-}
-
-static inline uint8_t*
-mb_ctx_buffer(ModbusCTX* ctx)
-{
-  return ctx->data_buffer;
-}
 
 static inline void
 mb_ctx_init(ModbusCTX* ctx)

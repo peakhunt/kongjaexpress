@@ -21,11 +21,10 @@
  *         false, when there is no response due to error or whatever
  */
 uint8_t
-modbus_rtu_handler_request_rx(ModbusCTX* ctx, uint8_t addr, uint16_t len, uint8_t* pdu)
+modbus_rtu_handler_request_rx(ModbusCTX* ctx, uint8_t addr, uint16_t len, uint8_t* pdu, uint16_t* rsp_len)
 {
   uint8_t       func;
   MBException   ret;
-  uint16_t      crc;
   
   func = pdu[MB_PDU_FUNC_OFF];
   //
@@ -80,15 +79,12 @@ modbus_rtu_handler_request_rx(ModbusCTX* ctx, uint8_t addr, uint16_t len, uint8_
     pdu[len++] = (func | MB_FUNC_ERROR);
     pdu[len++] = ret;
   }
-  
-  // prepare response
 
-  ctx->data_buffer[0] = addr;
-  ctx->data_ndx       = 1 + len;
-  crc = modbus_calc_crc((uint8_t*)ctx->data_buffer, ctx->data_ndx);
-  
-  ctx->data_buffer[ctx->data_ndx++] = (uint8_t)(crc & 0xff);
-  ctx->data_buffer[ctx->data_ndx++] = (uint8_t)(crc >> 8);
+  //
+  // len is PDU length
+  // pdu now contains response PDU
+  //
+  *rsp_len = len;
 
   return ret == MB_EX_NONE ? true : false;
 }

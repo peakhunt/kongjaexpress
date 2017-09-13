@@ -36,13 +36,44 @@ static void mb_rtu_start_handling_rx_frame(ModbusRTUSlave* slave);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// buffer management
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static inline void
+mb_rtu_reset_data_buffer(ModbusRTUSlave* slave)
+{
+  slave->data_ndx   = 0;
+  slave->tx_ndx     = 0;
+}
+
+static inline void
+mb_rtu_put_data(ModbusRTUSlave* slave, uint8_t b)
+{
+  slave->data_buffer[slave->data_ndx] = b;
+  slave->data_ndx++;
+}
+
+static inline uint16_t
+mb_rtu_rx_len(ModbusRTUSlave* slave)
+{
+  return slave->data_ndx;
+}
+
+static inline uint8_t*
+mb_rtu_buffer(ModbusRTUSlave* slave)
+{
+  return slave->data_buffer;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // USART/RS486 specific
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static inline void
 mb_rtu_enable_rx(ModbusRTUSlave* slave)
 {
-  mb_ctx_reset_data_buffer(&slave->ctx);
+  mb_rtu_reset_data_buffer(slave);
 
   // 
   // FIXME enable RX in case of half-duplex
@@ -67,19 +98,18 @@ mb_rtu_start_tx(ModbusRTUSlave* slave)
 {
   int   nwritten = 0,
         ret;
+  ModbusCTX* ctx = &slave->ctx;
 
-  ModbusCTX*    ctx = &slave->ctx;
-
-  while(nwritten < ctx->data_ndx)
+  while(nwritten < slave->data_ndx)
   {
-    ret = write(slave->fd, &ctx->data_buffer[nwritten], ctx->data_ndx - nwritten);
+    ret = write(slave->fd, &slave->data_buffer[nwritten], slave->data_ndx - nwritten);
     if(ret < 0 && !(errno == EWOULDBLOCK || errno == EAGAIN))
     {
       // FIXME TX error 
       break;
     }
 
-    if(nwritten >= ctx->data_ndx)
+    if(nwritten >= slave->data_ndx)
     {
       ctx->tx_frames++;
     }
@@ -127,18 +157,20 @@ static void
 mb_rtu_handle_rx_frame(ModbusRTUSlave* slave)
 {
   uint8_t   addr,
-  *pdu,
-  ret;
-  uint16_t  len;
+            *pdu,
+            ret;
+  uint16_t  len,
+            rsp_len,
+            crc;
   ModbusCTX*    ctx = &slave->ctx;
 
-  addr = mb_ctx_buffer(ctx)[MB_SER_PDU_ADDR_OFF];
-  len  = mb_ctx_rx_len(ctx) - MB_SER_PDU_PDU_OFF - MB_SER_PDU_SIZE_CRC;
-  pdu  = (uint8_t*)&mb_ctx_buffer(ctx)[MB_SER_PDU_PDU_OFF];
+  addr = mb_rtu_buffer(slave)[MB_SER_PDU_ADDR_OFF];
+  len  = mb_rtu_rx_len(slave) - MB_SER_PDU_PDU_OFF - MB_SER_PDU_SIZE_CRC;
+  pdu  = (uint8_t*)&mb_rtu_buffer(slave)[MB_SER_PDU_PDU_OFF];
 
   if(addr == slave->my_address || addr == MB_ADDRESS_BROADCAST)
   {
-    ret = modbus_rtu_handler_request_rx(ctx, addr, len, pdu);
+    ret = modbus_rtu_handler_request_rx(ctx, addr, len, pdu, &rsp_len);
     if(addr != MB_ADDRESS_BROADCAST)
     {
       ctx->my_frames++;
@@ -146,6 +178,17 @@ mb_rtu_handle_rx_frame(ModbusRTUSlave* slave)
       {
         ctx->req_fails++;
       }
+
+      //
+      // finish TX frame for RTU slave
+      //
+      slave->data_buffer[0] = addr;
+      slave->data_ndx       = 1 + rsp_len;
+      crc = modbus_calc_crc((uint8_t*)slave->data_buffer, slave->data_ndx);
+  
+      slave->data_buffer[slave->data_ndx++] = (uint8_t)(crc & 0xff);
+      slave->data_buffer[slave->data_ndx++] = (uint8_t)(crc >> 8);
+      
       mb_rtu_start_tx(slave);
       return;
     }
@@ -164,21 +207,21 @@ mb_rtu_start_handling_rx_frame(ModbusRTUSlave* slave)
 
   ctx->rx_frames++;
 
-  if(mb_ctx_rx_len(ctx) == 0)
+  if(mb_rtu_rx_len(slave) == 0)
   {
     // buffer overflow due to long frame has just occurred.
     mb_rtu_enable_rx(slave);
     return;
   }
 
-  if(mb_ctx_rx_len(ctx) < MB_SER_RTU_PDU_SIZE_MIN)
+  if(mb_rtu_rx_len(slave) < MB_SER_RTU_PDU_SIZE_MIN)
   {
     INC_ERR_CNT(slave->rx_short_frame);
     mb_rtu_enable_rx(slave);
     return;
   }
 
-  if(modbus_calc_crc((uint8_t*)mb_ctx_buffer(ctx), mb_ctx_rx_len(ctx)) != 0)
+  if(modbus_calc_crc((uint8_t*)mb_rtu_buffer(slave), mb_rtu_rx_len(slave)) != 0)
   {
     // crc16 error
     INC_ERR_CNT(ctx->rx_crc_error);
@@ -204,7 +247,7 @@ init_modbus_context(ModbusRTUSlave* slave, uint8_t addr)
   slave->my_address   = addr;
   slave->extension    = NULL;
 
-  mb_ctx_reset_data_buffer(ctx);
+  mb_rtu_reset_data_buffer(slave);
 
   task_timer_init(&slave->t35, t35_timeout_handler, NULL);
 
@@ -244,13 +287,13 @@ modbus_rtu_rx(ModbusRTUSlave* slave)
 
   for(i = 0; i < ret; i++)
   {
-    if(ctx->data_ndx >= MB_SER_RTU_PDU_SIZE_MAX)
+    if(slave->data_ndx >= MB_SER_RTU_PDU_SIZE_MAX)
     {
-      mb_ctx_reset_data_buffer(ctx);
+      mb_rtu_reset_data_buffer(slave);
       INC_ERR_CNT(ctx->rx_buffer_overflow);
       return;
     }
-    mb_ctx_put_data(ctx, buffer[i]);
+    mb_rtu_put_data(slave, buffer[i]);
   }
 
   task_timer_restart(&slave->t35, slave->t35_val, 0);

@@ -38,6 +38,11 @@
 typedef struct
 {
   ModbusCTX             ctx;
+
+  uint8_t               data_buffer[MB_SER_RTU_PDU_SIZE_MAX];
+  uint16_t              data_ndx;
+  uint16_t              tx_ndx;
+
   uint8_t               my_address;
 
   task_timer_t          t35;

@@ -9,3 +9,7 @@ libev/libev/event.o
 libev/libev/install_dir
 libev/libev/libev.la
 libev/libev/libtool
+libev/libev/ev.lo
+libev/libev/event.lo
+.dep/
+build/

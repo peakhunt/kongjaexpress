@@ -18,7 +18,8 @@ mbap_state_machine(mbap_reader_t* mbap, uint8_t data)
       mbap->length  = (mbap->frame[5] << 8 | mbap->frame[4]);
       mbap->uid     = mbap->frame[6];
 
-      mbap->data_remaining = mbap->length;
+      // taking unit ID into account
+      mbap->data_remaining = mbap->length - 1;
       mbap->state = mbap_reader_state_pdu;
     }
     break;

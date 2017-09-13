@@ -38,15 +38,61 @@ static void modbus_tcp_slave_handle_stream_event(stream_t* stream, stream_event_
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// connection alloc/dealloc
+// MODBUS TCP Frame Handling Core
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void
+modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connection_t* conn)
+{
+  uint8_t             *pdu,
+                      *adu,
+                      ret;
+  uint16_t            len,
+                      rsp_len;
+  ModbusCTX*          ctx = &slave->ctx;
+  mbap_reader_t*      mbap = &conn->mbap_reader;
+
+  adu     = &conn->mbap_reader.frame[0];
+  pdu     = &conn->mbap_reader.frame[MB_TCP_PDU_OFF];
+  len     = mbap->length - 1;
+
+  if(mbap->uid == slave->my_address || mbap->uid == MB_ADDRESS_BROADCAST)
+  {
+    ret = modbus_rtu_handler_request_rx(&slave->ctx, mbap->uid, len, pdu, &rsp_len);
+    if(mbap->uid != MB_ADDRESS_BROADCAST)
+    {
+      ctx->my_frames++;
+      if(ret != true)
+      {
+        ctx->req_fails++;
+      }
+
+      // taking unit ID into account
+      rsp_len += 1;
+
+      //
+      // finish TX frame for RTU slave
+      //
+      mbap->frame[5]  = (uint8_t)(rsp_len >> 8 & 0xff);
+      mbap->frame[4]  = (uint8_t)(rsp_len >> 0 & 0xff);
+
+      stream_write(&conn->stream, &mbap->frame[0], rsp_len + 6);
+    }
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// MBAP Reader Callback
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static void
 modbus_tcp_slave_got_frame(mbap_reader_t* mbap)
 {
-  //
-  // FIXME RX handler
-  //
+  modbus_tcp_slave_connection_t*  conn  = container_of(mbap, modbus_tcp_slave_connection_t, mbap_reader);
+  ModbusTCPSlave*                 slave = conn->slave;
+
+  modbus_tcp_slave_handle_rx_frame(slave, conn);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +114,8 @@ modbus_tcp_slave_alloc_conn(ModbusTCPSlave* slave, int newsd, struct sockaddr_in
     close(newsd);
     return;
   }
+
+  conn->slave = slave;
 
   INIT_LIST_HEAD(&conn->le);
 
