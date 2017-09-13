@@ -22,8 +22,10 @@ what we got
 21> modbus RTU slave
 22> cli serial interface
 23> priority based request queue
+24> modbus tcp slave test
 
 ==================================
+6> modbus rtu slave test
 5> completion event (from external process)
 6> pipe
 8> configuration
