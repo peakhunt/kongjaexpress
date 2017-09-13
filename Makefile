@@ -45,6 +45,7 @@ src/kongja_express.c                                \
 src/demo/tcp_server_test.c                          \
 src/demo/tcp_client_test.c                          \
 src/demo/cli_test.c                                 \
+src/demo/modbus_slave.c															\
 src/demo/demo.c
 
 #######################################
