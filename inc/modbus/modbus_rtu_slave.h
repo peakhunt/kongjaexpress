@@ -60,8 +60,8 @@ typedef struct
   watcher_t             watcher;
 } ModbusRTUSlave;
 
-extern void modbus_rtu_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd);
-extern void modbus_rtu_start(ModbusRTUSlave* slave);
-extern void modbus_rtu_stop(ModbusRTUSlave* slave);
+extern void modbus_rtu_slave_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd);
+extern void modbus_rtu_slave_start(ModbusRTUSlave* slave);
+extern void modbus_rtu_slave_stop(ModbusRTUSlave* slave);
 
 #endif /* !__MODBUS_RTU_SLAVE_DEF_H__ */
