@@ -4,6 +4,7 @@
 #include "log.h"
 #include "list.h"
 #include "stream.h"
+#include "trace.h"
 
 static void
 stream_handle_tx_event(stream_t* stream)
@@ -15,6 +16,7 @@ stream_handle_tx_event(stream_t* stream)
 
   if(circ_buffer_is_empty(&stream->tx_buf))
   {
+    TRACE(STREAM, "disabling TX event. circ buffer empty now\n");
     watcher_no_watch_tx(&stream->watcher);
     return;
   }
@@ -32,7 +34,7 @@ stream_handle_tx_event(stream_t* stream)
   {
     // definitely stream got into a trouble
     watcher_no_watch_tx(&stream->watcher);
-    log_write("XXXXXXXX this should not happen. %s:%d\n", __func__, __LINE__);
+    TRACE(STREAM, "XXXXXXXX this should not happen\n");
     CRASH();
     return;
   }
@@ -145,6 +147,7 @@ stream_write(stream_t* stream, uint8_t* data, int len)
     {
       if(!(errno == EWOULDBLOCK || errno == EAGAIN))
       {
+        TRACE(STREAM, "stream tx error other than EWOULDBLOCK\n");
         return false;
       }
       ret = 0;
@@ -153,9 +156,11 @@ stream_write(stream_t* stream, uint8_t* data, int len)
     // start tx watcher and queue remaining data
     if(circ_buffer_put(&stream->tx_buf, &data[ret], len - ret) == false)
     {
+      TRACE(STREAM, "can't TX.. circ buffer overflow\n");
       return false;
     }
 
+    TRACE(STREAM, "enabling TX event\n");
     watcher_watch_tx(&stream->watcher);
     return true;
   }

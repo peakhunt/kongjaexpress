@@ -1,6 +1,8 @@
 #ifndef __SERIAL_DEF_H__
 #define __SERIAL_DEF_H__
 
+#include <termios.h>
+
 typedef enum
 {
   SerialParity_None,

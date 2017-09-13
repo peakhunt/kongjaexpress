@@ -93,36 +93,6 @@ mb_rtu_disable_rx(ModbusRTUSlave* slave)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// TX routine
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static inline void
-mb_rtu_start_tx(ModbusRTUSlave* slave)
-{
-  int   nwritten = 0,
-        ret;
-  ModbusCTX* ctx = &slave->ctx;
-
-  while(nwritten < slave->data_ndx)
-  {
-    ret = write(slave->fd, &slave->data_buffer[nwritten], slave->data_ndx - nwritten);
-    if(ret < 0 && !(errno == EWOULDBLOCK || errno == EAGAIN))
-    {
-      TRACE(MB_RTU_SLAVE, "tx error : %d\n", errno);
-      break;
-    }
-
-    if(nwritten >= slave->data_ndx)
-    {
-      ctx->tx_frames++;
-    }
-  }
-
-  mb_rtu_enable_rx(slave);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 // optional snooping
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +165,15 @@ mb_rtu_handle_rx_frame(ModbusRTUSlave* slave)
       
       TRACE_DUMP(MB_RTU_SLAVE, "MB RTU Slave TX", slave->data_buffer, slave->data_ndx);
 
-      mb_rtu_start_tx(slave);
+      if(stream_write(&slave->stream, slave->data_buffer, slave->data_ndx) == false)
+      {
+        TRACE(MB_RTU_SLAVE, "tx error\n");
+      }
+      else
+      {
+        ctx->tx_frames++;
+      }
+      mb_rtu_enable_rx(slave);
       return;
     }
   }
@@ -266,9 +244,9 @@ init_modbus_context(ModbusRTUSlave* slave, uint8_t addr)
   // at 9600    : 3ms +- alpha
   // above 9600 : 2ms should be enough
   //
-  // so we can safely go with 3ms for t35.
+  // so we can safely go with 5ms for t35.
   //
-  slave->t35_val                  = 8;        // just 8ms max for every baud rate. 3ms buffer.
+  slave->t35_val                  = 5.0/1000;     // just 5ms max for every baud rate.
 
   slave->rx_usart_overflow        = 0;
   slave->rx_usart_frame_error     = 0;
@@ -285,43 +263,36 @@ init_modbus_context(ModbusRTUSlave* slave, uint8_t addr)
 static void
 modbus_rtu_rx(ModbusRTUSlave* slave)
 {
-  uint8_t       buffer[128];
-  int           i,
-                ret;
   ModbusCTX*    ctx = &slave->ctx;
 
-  ret = read(slave->fd, buffer, 128);
-  if(ret <= 0)
+  TRACE(SERIAL, "read %d bytes\n", slave->stream.rx_data_len);
+
+  if(slave->data_ndx + slave->stream.rx_data_len >= MB_SER_RTU_PDU_SIZE_MAX)
   {
-    return;
+    TRACE(MB_RTU_SLAVE, , "read overflow %d\n");
+    mb_rtu_reset_data_buffer(slave);
+    INC_ERR_CNT(ctx->rx_buffer_overflow);
   }
 
-  for(i = 0; i < ret; i++)
-  {
-    if(slave->data_ndx >= MB_SER_RTU_PDU_SIZE_MAX)
-    {
-      mb_rtu_reset_data_buffer(slave);
-      INC_ERR_CNT(ctx->rx_buffer_overflow);
-      return;
-    }
-    mb_rtu_put_data(slave, buffer[i]);
-  }
+  memcpy(&slave->data_buffer[slave->data_ndx], slave->stream.rx_buf, slave->stream.rx_data_len);
+  slave->data_ndx += slave->stream.rx_data_len;
 
   task_timer_restart(&slave->t35, slave->t35_val, 0);
 }
 
 static void
-modbus_rtu_watcher_callback(watcher_t* watcher, watcher_event_t evt)
+modbus_rtu_stream_callback(stream_t* stream, stream_event_t evt)
 {
-  ModbusRTUSlave*    slave = container_of(watcher, ModbusRTUSlave, watcher);
+  ModbusRTUSlave*    slave = container_of(stream, ModbusRTUSlave, stream);
 
   switch(evt)
   {
-  case watcher_event_rx:
+  case stream_event_rx:
     modbus_rtu_rx(slave);
     break;
 
   default:
+    TRACE(MB_RTU_SLAVE, "stream_event : %d\n", evt);
     break;
   }
 }
@@ -334,10 +305,8 @@ modbus_rtu_watcher_callback(watcher_t* watcher, watcher_event_t evt)
 void
 modbus_rtu_slave_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd)
 {
-  slave->fd   = fd;
-
-  watcher_init_with_fd(&slave->watcher, fd, modbus_rtu_watcher_callback);
-  watcher_watch_rx(&slave->watcher);
+  slave->stream.cb    = modbus_rtu_stream_callback;
+  stream_init_with_fd(&slave->stream, fd, slave->rx_bounce_buf, 128, MB_SER_RTU_PDU_SIZE_MAX * 3);
 
   init_modbus_context(slave, device_addr);
   modbus_rtu_init_snoop(slave);
@@ -347,11 +316,11 @@ modbus_rtu_slave_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd)
 void
 modbus_rtu_slave_start(ModbusRTUSlave* slave)
 {
-  watcher_start(&slave->watcher);
+  stream_start(&slave->stream);
 }
 
 void
 modbus_rtu_slave_stop(ModbusRTUSlave* slave)
 {
-  watcher_stop(&slave->watcher);
+  stream_stop(&slave->stream);
 }

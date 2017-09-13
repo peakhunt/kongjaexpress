@@ -21,15 +21,14 @@ check_serial_config(const SerialConfig* config)
 {
   static const int allowed_bauds[] = 
   {
-    1200,
-    2400,
-    4800,
-    9600,
-    14400,
-    19200,
-    38400,
-    57600,
-    115200,
+    B1200,
+    B2400,
+    B4800,
+    B9600,
+    B19200,
+    B38400,
+    B57600,
+    B115200,
   };
   int i;
 

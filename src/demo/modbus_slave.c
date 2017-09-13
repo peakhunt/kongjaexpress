@@ -78,7 +78,7 @@ modbus_task_start(task_t* task)
 {
   const SerialConfig    cfg1 = 
   {
-    .baud       = 115200,
+    .baud       = B9600,
     .data_bit   = 8,
     .stop_bit   = 1,
     .parity     = SerialParity_None,
@@ -87,7 +87,7 @@ modbus_task_start(task_t* task)
 
   TRACE(MAIN, "%s modbus task started\n", __func__);
 
-  fd = serial_init("/dev/ttyACM0", &cfg1);
+  fd = serial_init("/dev/ttyUSB0", &cfg1);
   if(fd < 0)
   {
     TRACE(MAIN, "failed to initialize serial device for RTU slave\n");

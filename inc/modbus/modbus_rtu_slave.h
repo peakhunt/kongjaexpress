@@ -6,6 +6,7 @@
 #include "watcher.h"
 
 #include "modbus_rtu.h"
+#include "stream.h"
 
 /*
  * Constants which defines the format of a modbus frame. The example is
@@ -40,13 +41,14 @@ typedef struct
   ModbusCTX             ctx;
 
   uint8_t               data_buffer[MB_SER_RTU_PDU_SIZE_MAX];
+  uint8_t               rx_bounce_buf[128];
   uint16_t              data_ndx;
   uint16_t              tx_ndx;
 
   uint8_t               my_address;
 
   task_timer_t          t35;
-  uint8_t               t35_val;
+  double                t35_val;
 
   // stats for debugging
   uint32_t              rx_usart_overflow;
@@ -56,8 +58,7 @@ typedef struct
 
   void*                 extension;                // an extension mechanism
 
-  int                   fd;
-  watcher_t             watcher;
+  stream_t              stream;
 } ModbusRTUSlave;
 
 extern void modbus_rtu_slave_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd);

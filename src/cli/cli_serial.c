@@ -94,7 +94,7 @@ cli_serial_intf_init(void)
 {
   const SerialConfig    cfg1 = 
   {
-    .baud       = 115200,
+    .baud       = B115200,
     .data_bit   = 8,
     .stop_bit   = 1,
     .parity     = SerialParity_None,
@@ -102,5 +102,5 @@ cli_serial_intf_init(void)
 
   TRACE(CLI_TELNET, "initializing cli serial interfaces\n");
 
-  cli_serial_initialize(&_serial_if1, "/dev/tty.wchusbserial1410",  &cfg1);
+  cli_serial_initialize(&_serial_if1, "/dev/ttyUSB5",  &cfg1);
 }
