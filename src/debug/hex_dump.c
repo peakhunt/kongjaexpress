@@ -19,18 +19,17 @@ hex_dump_buffer(const char* title, const char* head, uint8_t* buf, int len)
   log_write("===== %s, len: %d =====\n", title, len);
   for(i = 0; i < len; i += 8)
   {
-    row_len = (len - i * 8);
+    row_len = (len - i);
     row_len = row_len >= 8 ? 8 : row_len;
 
     buf_ndx = 0;
 
-    buf_ndx += sprintf(&buffer[buf_ndx], "%s : ", head);
     for(j = 0; j < row_len; j++)
     {
-      buf_ndx += sprintf(&buffer[buf_ndx], "%02x ", buf[i * 8 + j]);
+      buf_ndx += sprintf(&buffer[buf_ndx], "%02x ", buf[i + j]);
     }
 
-    log_write("%04d: %s\n", i / 8, buffer);
+    log_write("%s %04d: %s\n", head, i / 8, buffer);
   }
 }
 
