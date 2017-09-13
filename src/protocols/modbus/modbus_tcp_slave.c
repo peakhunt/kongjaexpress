@@ -45,14 +45,12 @@ static void
 modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connection_t* conn)
 {
   uint8_t             *pdu,
-                      *adu,
                       ret;
   uint16_t            len,
                       rsp_len;
   ModbusCTX*          ctx = &slave->ctx;
   mbap_reader_t*      mbap = &conn->mbap_reader;
 
-  adu     = &conn->mbap_reader.frame[0];
   pdu     = &conn->mbap_reader.frame[MB_TCP_PDU_OFF];
   len     = mbap->length - 1;
 
@@ -71,7 +69,7 @@ modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connect
       rsp_len += 1;
 
       //
-      // finish TX frame for RTU slave
+      // finish TX frame for RTU slave by updating response length
       //
       mbap->frame[5]  = (uint8_t)(rsp_len >> 8 & 0xff);
       mbap->frame[4]  = (uint8_t)(rsp_len >> 0 & 0xff);
