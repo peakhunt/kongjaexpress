@@ -23,18 +23,22 @@
 
 #endif
 
-#define __TRACE__MAIN           0
-#define __TRACE__TEST           1
-#define __TRACE__TASK           2
-#define __TRACE__SOCK_ERR       3
-#define __TRACE__SERIAL         4
-#define __TRACE__CLI_TELNET     5
-#define __TRACE__CLI_SERIAL     6
-#define __TRACE__CLI            7
-#define __TRACE__MB_TCP_SLAVE   8
-#define __TRACE__MBAP           9
-#define __TRACE__MB_RUT_SLAVE   10
-#define __TRACE_MAX             __TRACE__MB_RUT_SLAVE
+#define TRACE_DEF(__component__)           __TRACE__ ## __component__
+
+enum {
+  TRACE_DEF(MAIN),
+  TRACE_DEF(TEST),
+  TRACE_DEF(TASK),
+  TRACE_DEF(SOCK_ERR),
+  TRACE_DEF(SERIAL),
+  TRACE_DEF(CLI_TELNET),
+  TRACE_DEF(CLI_SERIAL),
+  TRACE_DEF(CLI),
+  TRACE_DEF(MB_TCP_SLAVE),
+  TRACE_DEF(MBAP),
+  TRACE_DEF(MB_RUT_SLAVE),
+  __TRACE_MAX,
+} trace_item_t;
 
 #define NUM_TRACE_ARRAY         (1 + __TRACE_MAX / 32)
 

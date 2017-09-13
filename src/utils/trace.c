@@ -33,10 +33,10 @@ trace_off(uint32_t comp)
   _trace_mask[ndx] &= ~(1 << bit_num);
 }
 
-uint8_t
+bool
 trace_is_on(uint32_t comp)
 {
   NDX_AND_BITNUM(comp);
 
-  return _trace_mask[ndx] & (1 << bit_num);
+  return (_trace_mask[ndx] & (1 << bit_num)) == 0 ? false : true;
 }
