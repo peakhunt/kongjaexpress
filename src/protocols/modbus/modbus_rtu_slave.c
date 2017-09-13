@@ -338,7 +338,7 @@ modbus_rtu_watcher_callback(watcher_t* watcher, watcher_event_t evt)
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-modbus_rtu_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd)
+modbus_rtu_slave_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd)
 {
   slave->fd   = fd;
 
@@ -351,13 +351,13 @@ modbus_rtu_init(ModbusRTUSlave* slave, uint8_t device_addr, int fd)
 }
 
 void
-modbus_rtu_start(ModbusRTUSlave* slave)
+modbus_rtu_slave_start(ModbusRTUSlave* slave)
 {
   watcher_start(&slave->watcher);
 }
 
 void
-modbus_rtu_stop(ModbusRTUSlave* slave)
+modbus_rtu_slave_stop(ModbusRTUSlave* slave)
 {
   watcher_stop(&slave->watcher);
 }
