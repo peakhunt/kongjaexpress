@@ -13,14 +13,16 @@ mbap_state_machine(mbap_reader_t* mbap, uint8_t data)
     if(mbap->header_remaining == 0)
     {
       // decode header
-      mbap->tid     = (mbap->frame[1] << 8 | mbap->frame[0]);
-      mbap->pid     = (mbap->frame[3] << 8 | mbap->frame[2]);
-      mbap->length  = (mbap->frame[5] << 8 | mbap->frame[4]);
+      mbap->tid     = (mbap->frame[0] << 8 | mbap->frame[1]);
+      mbap->pid     = (mbap->frame[2] << 8 | mbap->frame[3]);
+      mbap->length  = (mbap->frame[4] << 8 | mbap->frame[5]);
       mbap->uid     = mbap->frame[6];
 
       // taking unit ID into account
       mbap->data_remaining = mbap->length - 1;
       mbap->state = mbap_reader_state_pdu;
+
+      TRACE(MBAP, "moving to state pdu: data to read: %d\n", mbap->data_remaining);
     }
     break;
 
@@ -38,6 +40,7 @@ mbap_state_machine(mbap_reader_t* mbap, uint8_t data)
 
     if(mbap->data_remaining == 0)
     {
+      TRACE(MBAP, "got mbap frame:\n");
       mbap->cb(mbap);
       mbap_reader_reset(mbap);
     }
@@ -70,6 +73,7 @@ mbap_reader_reset(mbap_reader_t* mbap)
 void
 mbap_reader_feed(mbap_reader_t* mbap, uint8_t* buf, int len)
 {
+  TRACE(MBAP, "feeding %d bytes\n", len);
   for(int i = 0; i < len; i++)
   {
     mbap_state_machine(mbap, buf[i]);
