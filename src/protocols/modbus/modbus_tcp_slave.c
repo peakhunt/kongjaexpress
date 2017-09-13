@@ -16,6 +16,7 @@
 #include "stream.h"
 #include "sock_util.h"
 #include "trace.h"
+#include "hex_dump.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -51,6 +52,11 @@ modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connect
   ModbusCTX*          ctx = &slave->ctx;
   mbap_reader_t*      mbap = &conn->mbap_reader;
 
+  if(TRACE_IS_ON(MB_TCP_SLAVE))
+  {
+    hex_dump_buffer("MB TCP Slave RX", "MBTCPS_RX", mbap->frame, mbap->ndx);
+  }
+
   pdu     = &conn->mbap_reader.frame[MB_TCP_PDU_OFF];
   len     = mbap->length - 1;
 
@@ -74,7 +80,17 @@ modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connect
       mbap->frame[5]  = (uint8_t)(rsp_len >> 8 & 0xff);
       mbap->frame[4]  = (uint8_t)(rsp_len >> 0 & 0xff);
 
-      stream_write(&conn->stream, &mbap->frame[0], rsp_len + 6);
+      rsp_len += 6;   // mbap header
+
+      if(TRACE_IS_ON(MB_TCP_SLAVE))
+      {
+        hex_dump_buffer("MB TCP Slave TX", "MBTCPS_TX", mbap->frame, rsp_len);
+      }
+
+      if(stream_write(&conn->stream, &mbap->frame[0], rsp_len) == false)
+      {
+        TRACE(MB_TCP_SLAVE, "tx failed\n");
+      }
     }
   }
 }

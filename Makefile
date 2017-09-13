@@ -10,6 +10,7 @@ src/core/task_timer.c                               \
 src/core/watcher.c                                  \
 src/core/log.c                                      \
 src/core/idle_task.c                                \
+src/debug/hex_dump.c																\
 src/utils/bhash.c                                   \
 src/utils/circ_buffer.c                             \
 src/utils/cJSON.c                                   \

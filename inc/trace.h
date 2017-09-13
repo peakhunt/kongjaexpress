@@ -24,15 +24,17 @@
 #endif
 
 #define __TRACE__MAIN           0
-#define __TRACE__TASK           1
-#define __TRACE__SOCK_ERR       2
-#define __TRACE__SERIAL         3
-#define __TRACE__CLI_TELNET     4
-#define __TRACE__CLI_SERIAL     5
-#define __TRACE__CLI            6
-#define __TRACE__MB_TCP_SLAVE   7
-#define __TRACE__MBAP           8
-#define __TRACE_MAX             __TRACE__MBAP
+#define __TRACE__TEST           1
+#define __TRACE__TASK           2
+#define __TRACE__SOCK_ERR       3
+#define __TRACE__SERIAL         4
+#define __TRACE__CLI_TELNET     5
+#define __TRACE__CLI_SERIAL     6
+#define __TRACE__CLI            7
+#define __TRACE__MB_TCP_SLAVE   8
+#define __TRACE__MBAP           9
+#define __TRACE__MB_RUT_SLAVE   10
+#define __TRACE_MAX             __TRACE__MB_RUT_SLAVE
 
 #define NUM_TRACE_ARRAY         (1 + __TRACE_MAX / 32)
 
