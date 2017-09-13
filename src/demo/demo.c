@@ -14,15 +14,22 @@ extern void tcp_client_task_run(void);
 extern void cli_task_init(void);
 extern void cli_task_run(void);
 
+extern void modbus_slave_task_init(void);
+extern void modbus_slave_task_run(void);
+
 static uint32_t   _trace_init[] = 
 {
   TRACE_COMP(MAIN),
+  TRACE_COMP(TEST),
   TRACE_COMP(TASK),
   TRACE_COMP(SOCK_ERR),
   TRACE_COMP(SERIAL),
   TRACE_COMP(CLI_TELNET),
-  TRACE_COMP(CLI),
   TRACE_COMP(CLI_SERIAL),
+  TRACE_COMP(CLI),
+  TRACE_COMP(MB_TCP_SLAVE),
+  TRACE_COMP(MBAP),
+  TRACE_COMP(MB_RUT_SLAVE),
 };
 
 int
@@ -40,6 +47,9 @@ main()
   */
   cli_task_init();
   cli_task_run();
+
+  modbus_slave_task_init();
+  modbus_slave_task_run();
 
   idle_task_run();
 }
