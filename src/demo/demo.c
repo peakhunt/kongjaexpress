@@ -29,7 +29,7 @@ static uint32_t   _trace_init[] =
   TRACE_COMP(CLI),
   TRACE_COMP(MB_TCP_SLAVE),
   TRACE_COMP(MBAP),
-  TRACE_COMP(MB_RUT_SLAVE),
+  TRACE_COMP(MB_RTU_SLAVE),
 };
 
 int

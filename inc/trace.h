@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "log.h"
+#include "hex_dump.h"
 
 #define TRACE_COMP(__component__)           (__TRACE__ ## __component__)
 #define TRACE_ON(__component__)             trace_on(TRACE_COMP(__component__))
@@ -14,12 +15,19 @@
 #define TRACE(__component__, fmt,...)                                                 \
   if(TRACE_IS_ON(__component__))                                                      \
   {                                                                                   \
-    log_write("%s:%s:%d:"fmt, #__component__, __FILE__, __LINE__,  ##__VA_ARGS__);        \
+    log_write("%s:%s:%d:"fmt, #__component__, __FILE__, __LINE__,  ##__VA_ARGS__);    \
+  }
+
+#define TRACE_DUMP(__component__, title, buf, len)                \
+  if(TRACE_IS_ON(__component__))                                  \
+  {                                                               \
+    hex_dump_buffer(title, #__component__, buf, len);             \
   }
 
 #else
 
 #define TRACE(__component__, fmt,...)
+#define TRACE_DUMP(__component__, title, buf, len)
 
 #endif
 
@@ -36,7 +44,7 @@ enum {
   TRACE_DEF(CLI),
   TRACE_DEF(MB_TCP_SLAVE),
   TRACE_DEF(MBAP),
-  TRACE_DEF(MB_RUT_SLAVE),
+  TRACE_DEF(MB_RTU_SLAVE),
   __TRACE_MAX,
 } trace_item_t;
 

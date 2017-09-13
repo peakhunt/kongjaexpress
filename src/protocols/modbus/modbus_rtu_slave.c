@@ -108,7 +108,7 @@ mb_rtu_start_tx(ModbusRTUSlave* slave)
     ret = write(slave->fd, &slave->data_buffer[nwritten], slave->data_ndx - nwritten);
     if(ret < 0 && !(errno == EWOULDBLOCK || errno == EAGAIN))
     {
-      TRACE(MB_RUT_SLAVE, "tx error : %d\n", errno);
+      TRACE(MB_RTU_SLAVE, "tx error : %d\n", errno);
       break;
     }
 
@@ -179,7 +179,7 @@ mb_rtu_handle_rx_frame(ModbusRTUSlave* slave)
       ctx->my_frames++;
       if(ret != true)
       {
-        TRACE(MB_RUT_SLAVE, "modbus transaction error\n");
+        TRACE(MB_RTU_SLAVE, "modbus transaction error\n");
         ctx->req_fails++;
       }
 
@@ -193,10 +193,7 @@ mb_rtu_handle_rx_frame(ModbusRTUSlave* slave)
       slave->data_buffer[slave->data_ndx++] = (uint8_t)(crc & 0xff);
       slave->data_buffer[slave->data_ndx++] = (uint8_t)(crc >> 8);
       
-      if(TRACE_IS_ON(MB_RUT_SLAVE))
-      {
-        hex_dump_buffer("MB RTU Slave TX", "MBRTUS_TX", slave->data_buffer, slave->data_ndx);
-      }
+      TRACE_DUMP(MB_RTU_SLAVE, "MB RTU Slave TX", slave->data_buffer, slave->data_ndx);
 
       mb_rtu_start_tx(slave);
       return;
@@ -216,22 +213,19 @@ mb_rtu_start_handling_rx_frame(ModbusRTUSlave* slave)
 
   ctx->rx_frames++;
 
-  if(TRACE_IS_ON(MB_RUT_SLAVE))
-  {
-    hex_dump_buffer("MB RTU Slave RX", "MBRTUS_RX", slave->data_buffer, slave->data_ndx);
-  }
+  TRACE_DUMP(MB_RTU_SLAVE, "MB RTU Slave RX", slave->data_buffer, slave->data_ndx);
 
   if(mb_rtu_rx_len(slave) == 0)
   {
     // buffer overflow due to long frame has just occurred.
-    TRACE(MB_RUT_SLAVE, "rx error len 0\n");
+    TRACE(MB_RTU_SLAVE, "rx error len 0\n");
     mb_rtu_enable_rx(slave);
     return;
   }
 
   if(mb_rtu_rx_len(slave) < MB_SER_RTU_PDU_SIZE_MIN)
   {
-    TRACE(MB_RUT_SLAVE, "rx error short frame 0\n");
+    TRACE(MB_RTU_SLAVE, "rx error short frame 0\n");
     INC_ERR_CNT(slave->rx_short_frame);
     mb_rtu_enable_rx(slave);
     return;
@@ -239,7 +233,7 @@ mb_rtu_start_handling_rx_frame(ModbusRTUSlave* slave)
 
   if(modbus_calc_crc((uint8_t*)mb_rtu_buffer(slave), mb_rtu_rx_len(slave)) != 0)
   {
-    TRACE(MB_RUT_SLAVE, "rx error crc error\n");
+    TRACE(MB_RTU_SLAVE, "rx error crc error\n");
     // crc16 error
     INC_ERR_CNT(ctx->rx_crc_error);
     mb_rtu_enable_rx(slave);
