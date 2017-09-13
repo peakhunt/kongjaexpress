@@ -10,7 +10,8 @@ It should be quite a good starting framework for server side deveopment either i
 Keep it simple!
 Thread is evil! But sometimes it is necessary to fully take advantage of multi-core CPU.
 
-The basic philosophy of KongJa Express is based on NodeJS like functional programming, which I believe every modern application should be based on.
+The basic philosophy of KongJa Express is based on event based reactive server, which I believe every modern application should be based on.
+And as you already know, event is just a function call! To do that, you have to give up thinking in traditional procedural programming manner.
 
 ## libev
 Libev here is modified to support exceptfd. It is a simple change but for some reasons, original author refuses to implement it. But we need event on exceptfd on embedded linux environment to detect GPIO event.
