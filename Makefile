@@ -41,6 +41,7 @@ src/protocols/modbus/modbus_rtu_request_handler.c   \
 src/protocols/modbus/modbus_rtu_slave.c             \
 src/protocols/modbus/modbus_tcp_slave.c             \
 src/protocols/modbus/mbap_reader.c                  \
+src/protocols/modbus/modbus_master.c                \
 src/kongja_express.c                                \
 src/demo/tcp_server_test.c                          \
 src/demo/tcp_client_test.c                          \
