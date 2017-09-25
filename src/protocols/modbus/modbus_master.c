@@ -135,4 +135,24 @@ mb_master_write_and_read_registers(ModbusMasterCTX* ctx, uint8_t slave,
     uint16_t write_addr, uint16_t nb_write, const uint16_t* values,
     uint16_t read_addr, uint16_t nb_read)
 {
+  uint8_t   byte_count;
+  uint16_t  i;
+
+  mb_master_fill_io_status_req(ctx, MB_FUNC_READWRITE_MULTIPLE_REGISTERS, read_addr, nb_read);
+
+  ctx->tx_buf[ctx->tx_ndx++] = write_addr >> 8;
+  ctx->tx_buf[ctx->tx_ndx++] = write_addr & 0xff;
+  ctx->tx_buf[ctx->tx_ndx++] = nb_write >> 8;
+  ctx->tx_buf[ctx->tx_ndx++] = nb_write & 0xff;
+
+  byte_count = nb_write * 2;
+  ctx->tx_buf[ctx->tx_ndx++] = byte_count;
+
+  for (i = 0; i < nb_write; i++)
+  {
+    ctx->tx_buf[ctx->tx_ndx++] = values[i] >> 8;
+    ctx->tx_buf[ctx->tx_ndx++] = values[i] & 0xff;
+  }
+
+  ctx->request(ctx, slave);
 }
