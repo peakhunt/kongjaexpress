@@ -83,8 +83,7 @@ mb_master_write_multiple_coils(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg
 {
   uint8_t   byte_count,
             i;
-  uint16_t  pos = 0,
-            bit_check = 0;
+  uint16_t  pos = 0;
 
   mb_master_fill_io_status_req(ctx, MB_FUNC_WRITE_MULTIPLE_COILS, reg_addr, nb);
 
@@ -100,13 +99,10 @@ mb_master_write_multiple_coils(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg
 
     ctx->tx_buf[ctx->tx_ndx] = 0;
     
-    while ((bit & 0xff) && (bit_check++ < nb))
+    for(bit = 0; bit < 8 && pos < nb; bit++, pos++)
     {
-      if (values[pos++])
-        ctx->tx_buf[ctx->tx_ndx] |= bit;
-      else
-        ctx->tx_buf[ctx->tx_ndx] &=~ bit;
-      bit = bit << 1;
+      if (values[pos])
+        ctx->tx_buf[ctx->tx_ndx] |= (1 << bit);
     }
     ctx->tx_ndx++;
   }
