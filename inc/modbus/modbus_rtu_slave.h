@@ -5,7 +5,7 @@
 #include "task_timer.h"
 #include "watcher.h"
 
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "stream.h"
 
 /*
@@ -38,7 +38,7 @@
 
 typedef struct
 {
-  ModbusCTX             ctx;
+  ModbusSlaveCTX        ctx;
 
   uint8_t               data_buffer[MB_SER_RTU_PDU_SIZE_MAX];
   uint8_t               rx_bounce_buf[128];

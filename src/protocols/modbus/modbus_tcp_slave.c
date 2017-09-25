@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "common.h"
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "modbus_tcp_slave.h"
 #include "modbus_crc.h"
 #include "modbus_rtu_request_handler.h"
@@ -49,7 +49,7 @@ modbus_tcp_slave_handle_rx_frame(ModbusTCPSlave* slave, modbus_tcp_slave_connect
                       ret;
   uint16_t            len,
                       rsp_len;
-  ModbusCTX*          ctx = &slave->ctx;
+  ModbusSlaveCTX*          ctx = &slave->ctx;
   mbap_reader_t*      mbap = &conn->mbap_reader;
 
   TRACE_DUMP(MB_TCP_SLAVE, "MB TCP Slave RX", mbap->frame, mbap->ndx);
@@ -206,7 +206,7 @@ modbus_tcp_slave_new_connection(tcp_server_t* server, int newsd, struct sockaddr
 void
 modbus_tcp_slave_init(ModbusTCPSlave* slave, uint8_t device_addr, int tcp_port)
 {
-  mb_ctx_init(&slave->ctx);
+  mb_slave_ctx_init(&slave->ctx);
 
   slave->my_address = device_addr;
 

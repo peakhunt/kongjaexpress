@@ -6,7 +6,7 @@
  */ 
 
 #include <stdint.h>
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "modbus_util.h"
 #include "modbus_funcs.h"
 
@@ -35,7 +35,7 @@
 #define MB_PDU_FUNC_READWRITE_SIZE_MIN          ( 9 )
 
 MBException
-modbus_func_handler_write_holding_register(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
+modbus_func_handler_write_holding_register(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
 {
   uint16_t          usRegAddress;
   MBException    eStatus = MB_EX_NONE;
@@ -67,7 +67,7 @@ modbus_func_handler_write_holding_register(ModbusCTX* ctx, uint8_t addr, uint8_t
 }
 
 MBException
-modbus_func_handler_write_multiple_holding_registers(ModbusCTX* ctx, uint8_t addr,uint8_t * pucFrame, uint16_t * usLen)
+modbus_func_handler_write_multiple_holding_registers(ModbusSlaveCTX* ctx, uint8_t addr,uint8_t * pucFrame, uint16_t * usLen)
 {
   uint16_t          usRegAddress;
   uint16_t          usRegCount;
@@ -124,7 +124,7 @@ modbus_func_handler_write_multiple_holding_registers(ModbusCTX* ctx, uint8_t add
 }
 
 MBException
-modbus_func_handler_read_holding_register(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
+modbus_func_handler_read_holding_register(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
 {
   uint16_t          usRegAddress;
   uint16_t          usRegCount;
@@ -187,7 +187,7 @@ modbus_func_handler_read_holding_register(ModbusCTX* ctx, uint8_t addr, uint8_t 
 }
 
 MBException
-modbus_func_handler_read_write_multiple_holding_registers(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
+modbus_func_handler_read_write_multiple_holding_registers(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
 {
   uint16_t          usRegReadAddress;
   uint16_t          usRegReadCount;

@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include "modbus_funcs.h"
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "modbus_util.h"
 
 #define BITS_uint8_t      8U

@@ -6,7 +6,7 @@
 #include "trace.h"
 #include "serial.h"
 
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "modbus_rtu_slave.h"
 #include "modbus_tcp_slave.h"
 
@@ -27,14 +27,14 @@ static ModbusTCPSlave   _tcp_slave;
 //
 ////////////////////////////////////////////////////////////////////////////////
 static MBErrorCode 
-input_regs_cb(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer,uint16_t usAddress, uint16_t usNRegs)
+input_regs_cb(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer,uint16_t usAddress, uint16_t usNRegs)
 {
   TRACE(MAIN, "read input regs req: addr: %d, reg addr: %d, num regs: %d\n", addr, usAddress, usNRegs);
   return MB_ENOERR;
 }
 
 static MBErrorCode
-holding_regs_cb(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress, uint16_t usNRegs, MBRegisterMode eMode)
+holding_regs_cb(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress, uint16_t usNRegs, MBRegisterMode eMode)
 {
   if(eMode == MB_REG_READ)
   {
@@ -48,7 +48,7 @@ holding_regs_cb(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t u
 }
 
 static MBErrorCode
-coil_cb(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress, uint16_t usNRegs, MBRegisterMode eMode)
+coil_cb(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress, uint16_t usNRegs, MBRegisterMode eMode)
 {
   if(eMode == MB_REG_READ)
   {
@@ -62,7 +62,7 @@ coil_cb(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress
 }
 
 static MBErrorCode
-discrete_cb(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress, uint16_t usNRegs)
+discrete_cb(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress, uint16_t usNRegs)
 {
   TRACE(MAIN, "read discrete  regs req: addr: %d, reg addr: %d, num regs: %d\n", addr, usAddress, usNRegs);
   return MB_ENOERR;

@@ -5,7 +5,7 @@
 #include "task_timer.h"
 #include "watcher.h"
 
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 
 #include "list.h"
 #include "tcp_server.h"
@@ -39,7 +39,7 @@
 
 typedef struct
 {
-  ModbusCTX             ctx;
+  ModbusSlaveCTX        ctx;
   uint8_t               my_address;
 
   tcp_server_t          server;

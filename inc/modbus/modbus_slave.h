@@ -74,10 +74,10 @@ typedef enum
   MB_REG_WRITE                /*!< Update register values. */
 } MBRegisterMode;
 
-struct __modbus_ctx;
-typedef struct __modbus_ctx ModbusCTX;
+struct __modbus_slave_ctx;
+typedef struct __modbus_slave_ctx ModbusSlaveCTX;
 
-struct __modbus_ctx
+struct __modbus_slave_ctx
 {
   uint32_t              rx_buffer_overflow;
   uint32_t              rx_crc_error;
@@ -86,18 +86,18 @@ struct __modbus_ctx
   uint32_t              my_frames;
   uint32_t              tx_frames;
   
-  MBErrorCode           (*input_regs_cb)(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer,
+  MBErrorCode           (*input_regs_cb)(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer,
                             uint16_t usAddress, uint16_t usNRegs);
-  MBErrorCode           (*holding_regs_cb)(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer,
+  MBErrorCode           (*holding_regs_cb)(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer,
                             uint16_t usAddress, uint16_t usNRegs, MBRegisterMode eMode);
-  MBErrorCode           (*coil_cb)(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress,
+  MBErrorCode           (*coil_cb)(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress,
                             uint16_t usNRegs, MBRegisterMode eMode);
-  MBErrorCode           (*discrete_cb)(ModbusCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress,
+  MBErrorCode           (*discrete_cb)(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucRegBuffer, uint16_t usAddress,
                             uint16_t usNRegs);
 };
 
 static inline void
-mb_ctx_init(ModbusCTX* ctx)
+mb_slave_ctx_init(ModbusSlaveCTX* ctx)
 {
   ctx->rx_buffer_overflow       = 0;
   ctx->rx_crc_error             = 0;

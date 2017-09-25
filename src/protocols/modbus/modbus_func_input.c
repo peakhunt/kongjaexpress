@@ -6,7 +6,7 @@
  */ 
 
 #include <stdint.h>
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "modbus_util.h"
 #include "modbus_funcs.h"
 
@@ -18,7 +18,7 @@
 #define MB_PDU_FUNC_READ_RSP_BYTECNT_OFF    ( MB_PDU_DATA_OFF )
 
 MBException
-modbus_func_handler_read_input_register(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen )
+modbus_func_handler_read_input_register(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen )
 {
   uint16_t          usRegAddress;
   uint16_t          usRegCount;

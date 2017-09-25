@@ -9,7 +9,7 @@
 #include <errno.h>
 
 #include "common.h"
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "modbus_rtu_slave.h"
 #include "modbus_crc.h"
 #include "modbus_rtu_request_handler.h"
@@ -49,12 +49,14 @@ mb_rtu_reset_data_buffer(ModbusRTUSlave* slave)
   slave->tx_ndx     = 0;
 }
 
+/*
 static inline void
 mb_rtu_put_data(ModbusRTUSlave* slave, uint8_t b)
 {
   slave->data_buffer[slave->data_ndx] = b;
   slave->data_ndx++;
 }
+*/
 
 static inline uint16_t
 mb_rtu_rx_len(ModbusRTUSlave* slave)
@@ -135,7 +137,7 @@ mb_rtu_handle_rx_frame(ModbusRTUSlave* slave)
   uint16_t  len,
             rsp_len,
             crc;
-  ModbusCTX*    ctx = &slave->ctx;
+  ModbusSlaveCTX*    ctx = &slave->ctx;
 
   addr = mb_rtu_buffer(slave)[MB_SER_PDU_ADDR_OFF];
   len  = mb_rtu_rx_len(slave) - MB_SER_PDU_PDU_OFF - MB_SER_PDU_SIZE_CRC;
@@ -187,7 +189,7 @@ mb_rtu_handle_rx_frame(ModbusRTUSlave* slave)
 static void
 mb_rtu_start_handling_rx_frame(ModbusRTUSlave* slave)
 {
-  ModbusCTX*    ctx = &slave->ctx;
+  ModbusSlaveCTX*    ctx = &slave->ctx;
 
   ctx->rx_frames++;
 
@@ -229,9 +231,9 @@ mb_rtu_start_handling_rx_frame(ModbusRTUSlave* slave)
 static void
 init_modbus_context(ModbusRTUSlave* slave, uint8_t addr)
 {
-  ModbusCTX*    ctx = &slave->ctx;
+  ModbusSlaveCTX*    ctx = &slave->ctx;
 
-  mb_ctx_init(ctx);
+  mb_slave_ctx_init(ctx);
 
   slave->my_address   = addr;
   slave->extension    = NULL;
@@ -263,7 +265,7 @@ init_modbus_context(ModbusRTUSlave* slave, uint8_t addr)
 static void
 modbus_rtu_rx(ModbusRTUSlave* slave)
 {
-  ModbusCTX*    ctx = &slave->ctx;
+  ModbusSlaveCTX*    ctx = &slave->ctx;
 
   TRACE(SERIAL, "read %d bytes\n", slave->stream.rx_data_len);
 

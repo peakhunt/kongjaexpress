@@ -6,7 +6,7 @@
  */ 
 
 #include <stdint.h>
-#include "modbus_rtu.h"
+#include "modbus_slave.h"
 #include "modbus_util.h"
 #include "modbus_funcs.h"
 
@@ -27,7 +27,7 @@
 #define MB_PDU_FUNC_WRITE_MUL_COILCNT_MAX   ( 0x07B0 )
 
 MBException
-modbus_func_handler_read_coils(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
+modbus_func_handler_read_coils(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
 {
   uint16_t          usRegAddress;
   uint16_t          usCoilCount;
@@ -105,7 +105,7 @@ modbus_func_handler_read_coils(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame,
 }
 
 MBException
-modbus_func_handler_write_coil(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
+modbus_func_handler_write_coil(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
 {
   uint16_t          usRegAddress;
   uint8_t           ucBuf[2];
@@ -157,7 +157,7 @@ modbus_func_handler_write_coil(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame,
 }
 
 MBException
-modbus_func_handler_write_multiple_coils(ModbusCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
+modbus_func_handler_write_multiple_coils(ModbusSlaveCTX* ctx, uint8_t addr, uint8_t * pucFrame, uint16_t * usLen)
 {
   uint16_t          usRegAddress;
   uint16_t          usCoilCnt;
