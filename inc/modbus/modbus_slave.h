@@ -6,8 +6,8 @@
  */ 
 
 
-#ifndef MODBUS_RTU_H_
-#define MODBUS_RTU_H_
+#ifndef MODBUS_SLAVE_H_
+#define MODBUS_SLAVE_H_
 
 #include <stdint.h>
 
@@ -107,4 +107,4 @@ mb_slave_ctx_init(ModbusSlaveCTX* ctx)
   ctx->tx_frames                = 0;
 }
 
-#endif /* MODBUS_RTU_H_ */
+#endif /* MODBUS_SLAVE_H_ */
