@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include "common.h"
 #include "trace.h"
 #include "modbus_tcp_master.h"
 
@@ -26,6 +27,22 @@ modbus_tcp_master_request(ModbusMasterCTX* ctx, uint8_t slave)
 static void
 modbus_tcp_master_stream_callback(stream_t* stream, stream_event_t evt)
 {
+  ModbusTCPMaster*  master = container_of(stream, ModbusTCPMaster, stream);
+
+  UNUSED(master);
+
+  switch(evt)
+  {
+  case stream_event_rx:
+    // XXX
+    // FIXME RX handling
+    //modbus_rtu_rx(slave);
+    break;
+
+  default:
+    TRACE(MB_TCP_MASTER, "stream_event : %d\n", evt);
+    break;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

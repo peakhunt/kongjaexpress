@@ -3,8 +3,6 @@
 
 #include "log.h"
 
-#define UNUSED(__v__)       (void)__v__
-
 #define pr_err(fmt, ...)\
   log_write("%s:%s-%d:"fmt, __func__, __FILE__, __LINE__, ##__VA_ARGS__)
 

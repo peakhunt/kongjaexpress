@@ -12,5 +12,6 @@ typedef uint8_t     bool;
 #define FALSE       false
 
 #define NARRAY(a)     (sizeof(a)/sizeof(a[0]))
+#define UNUSED(a)     (void)(a)
 
 #endif /* !__COMMON_DEF_H__ */
