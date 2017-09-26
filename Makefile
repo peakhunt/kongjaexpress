@@ -23,6 +23,7 @@ src/net/tcp_server.c                                \
 src/net/tcp_server_ipv4.c                           \
 src/net/tcp_server_unix_domain.c                    \
 src/net/tcp_connector.c                             \
+src/net/tcp_auto_connector.c                        \
 src/net/sock_util.c                                 \
 src/net/udp_socket.c                                \
 src/serial/serial.c                                 \
