@@ -1,6 +1,8 @@
 #include "trace.h"
 #include "tcp_auto_connector.h"
 
+static void tcp_auto_connector_connect(tcp_auto_connector_t* conn);
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  private utilities
@@ -12,29 +14,25 @@ tcp_auto_connector_handle_tcp_connect_event(tcp_auto_connector_t* conn, tcp_conn
   switch(status)
   {
   case tcp_connector_success:
-    //
-    // invoke callback
-    //
     conn->state = tcp_auto_connector_state_not_started;
+    conn->cb(conn, -1); // FIXME SD
     break;
 
   case tcp_connector_failure:
+    // FIXME deinit connector
     conn->state = tcp_auto_connector_state_reconnect_wait;
     task_timer_start(&conn->reconn_wait_tmr, conn->reconn_wait_tmr_value, 0);
+    conn->cb(conn, -1);
     break;
 
   case tcp_connector_in_progress:
-    //
-    // nothing todo 
-    //
     conn->state = tcp_auto_connector_state_connecting;
     break;
 
   case tcp_connector_timeout:
-    //
-    // try reconnect
-    //
-    conn->state = tcp_auto_connector_state_connecting;
+    // FIXME deinit connector
+    conn->cb(conn, -1);
+    tcp_auto_connector_connect(conn);
     break;
   }
 }
