@@ -29,19 +29,16 @@ typedef void (*tcp_connector_callback)(tcp_connector_t* conn, tcp_connector_stat
 struct __tcp_connector
 {
   int                       sd;
-  bool                      is_started;
+  bool                      is_in_prog;
   tcp_connector_callback    cb;
 
   task_timer_t              tmr;
   watcher_t                 watcher;
 };
 
-extern void tcp_connector_init(tcp_connector_t* conn, int sd);
 extern void tcp_connector_deinit(tcp_connector_t* conn);
-extern tcp_connector_status_t tcp_connector_connect(tcp_connector_t* conn,
-    struct sockaddr* addr, socklen_t addrlen, double to);
-
 extern tcp_connector_status_t tcp_connector_try_ipv4(tcp_connector_t* conn, struct sockaddr_in* addr, double to);
 extern tcp_connector_status_t tcp_connectyr_try_unix_domain(tcp_connector_t* conn, struct sockaddr_un* addr, double to);
+extern int tcp_connect_get_sd(tcp_connector_t* conn);
 
 #endif /* !__TCP_CONNECTOR_DEF_H__ */

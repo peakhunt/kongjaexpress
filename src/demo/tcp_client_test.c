@@ -41,7 +41,6 @@ tcp_connector_event_handler(TcpClient* cli, tcp_connector_status_t status, bool 
     log_write("%s %s failed\n", __func__, direct ? "directr" : "indirect", cli->name);
 
     tcp_connector_deinit(&cli->connector);
-    close(cli->connector.sd);
 
     task_timer_start(&cli->tmr, 3.0, 0.0);
     break;
@@ -54,7 +53,6 @@ tcp_connector_event_handler(TcpClient* cli, tcp_connector_status_t status, bool 
     log_write("connect time out  %s\n", cli->name);
 
     tcp_connector_deinit(&cli->connector);
-    close(cli->connector.sd);
 
     try_to_connect(cli);
     break;
@@ -85,7 +83,6 @@ retry_timer_expired(task_timer_t* t, void* arg)
     log_write("disconnecting %s\n", cli->name);
 
     tcp_connector_deinit(&cli->connector);
-    close(cli->connector.sd);
   }
   else
   {
