@@ -116,6 +116,7 @@ modbus_tcp_master_reconnect_timeout(task_timer_t* te, void* unused)
 {
   ModbusTCPMaster* master = container_of(te, ModbusTCPMaster, reconnect_tmr);
 
+  TRACE(MB_TCP_MASTER, "ReConnect timer timeout\n");
   modbus_tcp_master_connect(master);
 }
 

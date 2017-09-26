@@ -17,6 +17,9 @@ extern void cli_task_run(void);
 extern void modbus_slave_task_init(void);
 extern void modbus_slave_task_run(void);
 
+extern void modbus_master_task_init(void);
+extern void modbus_master_task_run(void);
+
 static uint32_t   _trace_init[] = 
 {
   TRACE_COMP(MAIN),
@@ -30,6 +33,8 @@ static uint32_t   _trace_init[] =
   TRACE_COMP(MB_TCP_SLAVE),
   TRACE_COMP(MBAP),
   TRACE_COMP(MB_RTU_SLAVE),
+  TRACE_COMP(MB_RTU_MASTER),
+  TRACE_COMP(MB_TCP_MASTER),
 };
 
 int
@@ -50,6 +55,9 @@ main()
 
   modbus_slave_task_init();
   modbus_slave_task_run();
+
+  modbus_master_task_init();
+  modbus_master_task_run();
 
   idle_task_run();
 }
