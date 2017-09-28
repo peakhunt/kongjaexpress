@@ -2,7 +2,7 @@
 #define __MODBUS_TCP_MASTER_DEF_H__
 
 #include <stdint.h>
-#include "tcp_connector.h"
+#include "tcp_auto_connector.h"
 #include "stream.h"
 #include "modbus_master.h"
 
@@ -19,9 +19,8 @@ typedef struct
   uint8_t                 rx_bounce_buf[128];
 
   struct sockaddr_in      server_addr;
-  tcp_connector_t         tcp_connector;
+  tcp_auto_connector_t    tcp_connector;
   ModbusTCPMasterState_t  tcp_state;
-  task_timer_t            reconnect_tmr;
 
   stream_t                stream;
 } ModbusTCPMaster;

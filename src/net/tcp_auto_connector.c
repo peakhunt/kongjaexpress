@@ -15,11 +15,12 @@ tcp_auto_connector_handle_tcp_connect_event(tcp_auto_connector_t* conn, tcp_conn
   {
   case tcp_connector_success:
     conn->state = tcp_auto_connector_state_not_started;
-    conn->cb(conn, -1); // FIXME SD
+    conn->cb(conn, tcp_connect_get_sd(&conn->tcp_connector));
     break;
 
   case tcp_connector_failure:
-    // FIXME deinit connector
+    tcp_connector_deinit(&conn->tcp_connector);
+
     conn->state = tcp_auto_connector_state_reconnect_wait;
     task_timer_start(&conn->reconn_wait_tmr, conn->reconn_wait_tmr_value, 0);
     conn->cb(conn, -1);
@@ -30,7 +31,7 @@ tcp_auto_connector_handle_tcp_connect_event(tcp_auto_connector_t* conn, tcp_conn
     break;
 
   case tcp_connector_timeout:
-    // FIXME deinit connector
+    tcp_connector_deinit(&conn->tcp_connector);
     conn->cb(conn, -1);
     tcp_auto_connector_connect(conn);
     break;
@@ -74,8 +75,7 @@ tcp_auto_connector_tcp_connector_callback(tcp_connector_t* tconn,
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-tcp_auto_connector_init(tcp_auto_connector_t* conn,
-    struct sockaddr_in* server_addr, double conn_tmr, double reconn_wait_tmr)
+tcp_auto_connector_init(tcp_auto_connector_t* conn, struct sockaddr_in* server_addr, double conn_tmr, double reconn_wait_tmr)
 {
   memcpy(&conn->server_addr, server_addr, sizeof(struct sockaddr_in));
 
@@ -96,6 +96,20 @@ tcp_auto_connector_start(tcp_auto_connector_t* conn)
 }
 
 void
-tcp_auto_connecotr_stop(tcp_auto_connector_t* conn)
+tcp_auto_connector_stop(tcp_auto_connector_t* conn)
 {
+  switch(conn->state)
+  {
+  case tcp_auto_connector_state_not_started:
+  case tcp_auto_connector_state_connecting:
+    tcp_connector_deinit(&conn->tcp_connector);
+    break;
+
+  case tcp_auto_connector_state_reconnect_wait:
+    tcp_connector_deinit(&conn->tcp_connector);
+    task_timer_stop(&conn->reconn_wait_tmr);
+    break;
+  }
+
+  conn->state = tcp_auto_connector_state_not_started;
 }

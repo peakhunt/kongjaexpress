@@ -31,9 +31,8 @@ struct __tcp_auto_connector
   tcp_auto_connector_state_t    state;
 };
 
-extern void tcp_auto_connector_init(tcp_auto_connector_t* conn,
-    struct sockaddr_in* server_addr, double conn_tmr, double reconn_wait_tmr);
+extern void tcp_auto_connector_init(tcp_auto_connector_t* conn, struct sockaddr_in* server_addr, double conn_tmr, double reconn_wait_tmr);
 extern void tcp_auto_connector_start(tcp_auto_connector_t* conn);
-extern void tcp_auto_connecotr_stop(tcp_auto_connector_t* conn);
+extern void tcp_auto_connector_stop(tcp_auto_connector_t* conn);
 
 #endif /* !__TCP_AUTO_CONNECTOR_DEF_H__ */
