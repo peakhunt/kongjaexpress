@@ -28,8 +28,13 @@ modbus_master_task_start(task_t* task)
   TRACE(MAIN, "%s modbus master task started\n", __func__);
 
   server_addr.sin_family       = AF_INET;
+#if 0
   server_addr.sin_addr.s_addr  = inet_addr("192.168.1.110");
   server_addr.sin_port         = htons(8908);
+#else
+  server_addr.sin_addr.s_addr  = inet_addr("127.0.0.1");
+  server_addr.sin_port         = htons(12345);
+#endif
 
   modbus_tcp_master_init(&_tcp_master,  &server_addr);
   modbus_tcp_master_start(&_tcp_master);
