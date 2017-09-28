@@ -18,7 +18,22 @@
 static void
 modbus_rtu_master_request(ModbusMasterCTX* ctx, uint8_t slave)
 {
-  // FIXME XXX
+  ModbusRTUMaster*  master = container_of(ctx, ModbusRTUMaster, ctx);
+  uint16_t    crc;
+
+  ctx->tx_buf[0]    = slave;
+
+  crc = modbus_calc_crc(ctx->tx_buf, ctx->tx_ndx);
+
+  ctx->tx_buf[ctx->tx_ndx++] = (uint8_t)(crc & 0xff);
+  ctx->tx_buf[ctx->tx_ndx++] = (uint8_t)(crc >> 8);
+
+  TRACE_DUMP(MB_RTU_MASTER, "MB RTU Master TX", ctx->tx_buf, ctx->tx_ndx);
+
+  if(stream_write(&master->stream, ctx->tx_buf, ctx->tx_ndx) == false)
+  {
+    TRACE(MB_RTU_MASTER, "tx error\n");
+  }
 }
 
 static void
@@ -50,8 +65,8 @@ modbus_rtu_master_stream_callback(stream_t* stream, stream_event_t evt)
 void
 modbus_rtu_master_init(ModbusRTUMaster* master, int fd)
 {
-  master->ctx.request = modbus_rtu_master_request;
-  
+  master->ctx.pdu_offset    = 1;
+  master->ctx.request       = modbus_rtu_master_request;
   mb_master_ctx_init(&master->ctx);
 
   master->stream.cb    = modbus_rtu_master_stream_callback;

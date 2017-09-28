@@ -23,6 +23,9 @@ typedef struct
   ModbusTCPMasterState_t  tcp_state;
 
   stream_t                stream;
+
+  uint16_t                tid;
+  uint16_t                pid;
 } ModbusTCPMaster;
 
 extern void modbus_tcp_master_init(ModbusTCPMaster* master, struct sockaddr_in*  server_addr);
