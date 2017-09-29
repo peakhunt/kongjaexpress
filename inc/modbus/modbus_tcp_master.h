@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "tcp_auto_connector.h"
 #include "stream.h"
+#include "mbap_reader.h"
 #include "modbus_master.h"
 
 typedef enum
@@ -26,6 +27,8 @@ typedef struct
 
   uint16_t                tid;
   uint16_t                pid;
+
+  mbap_reader_t           mbap_reader;
 } ModbusTCPMaster;
 
 extern void modbus_tcp_master_init(ModbusTCPMaster* master, struct sockaddr_in*  server_addr);

@@ -13,6 +13,9 @@ typedef struct
   uint8_t             rx_bounce_buf[128];
 
   stream_t            stream;
+
+  task_timer_t        t35;
+  double              t35_val;
 } ModbusRTUMaster;
 
 extern void modbus_rtu_master_init(ModbusRTUMaster* master, int fd);

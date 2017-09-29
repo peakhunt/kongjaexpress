@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// module privates
+// TX handling
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static void
@@ -36,25 +36,81 @@ modbus_rtu_master_request(ModbusMasterCTX* ctx, uint8_t slave)
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// RX handling
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void
+modbus_rtu_rx(ModbusRTUMaster* master)
+{
+  //
+  // FIXME
+  //
+}
+
 static void
 modbus_rtu_master_stream_callback(stream_t* stream, stream_event_t evt)
 {
   ModbusRTUMaster*  master = container_of(stream, ModbusRTUMaster, stream);
 
-  UNUSED(master);
-
   switch(evt)
   {
   case stream_event_rx:
-    // XXX
-    // FIXME RX handling
-    //modbus_rtu_rx(slave);
+    modbus_rtu_rx(master);
     break;
 
   default:
     TRACE(MB_RTU_MASTER, "stream_event : %d\n", evt);
     break;
   }
+}
+
+static void
+mb_rtu_start_handling_rx_frame(ModbusRTUMaster* master)
+{
+#if 0
+  ModbusMasterCTX*    ctx = &master->ctx;
+
+  //ctx->rx_frames++;
+
+  //TRACE_DUMP(MB_RTU_MASTER, "MB RTU Master RX", master->data_buffer, master->data_ndx);
+
+  if(mb_rtu_rx_len(slave) == 0)
+  {
+    // buffer overflow due to long frame has just occurred.
+    TRACE(MB_RTU_SLAVE, "rx error len 0\n");
+    mb_rtu_enable_rx(slave);
+    return;
+  }
+
+  if(mb_rtu_rx_len(slave) < MB_SER_RTU_PDU_SIZE_MIN)
+  {
+    TRACE(MB_RTU_SLAVE, "rx error short frame 0\n");
+    INC_ERR_CNT(slave->rx_short_frame);
+    mb_rtu_enable_rx(slave);
+    return;
+  }
+
+  if(modbus_calc_crc((uint8_t*)mb_rtu_buffer(slave), mb_rtu_rx_len(slave)) != 0)
+  {
+    TRACE(MB_RTU_SLAVE, "rx error crc error\n");
+    // crc16 error
+    INC_ERR_CNT(ctx->rx_crc_error);
+    mb_rtu_enable_rx(slave);
+    return;
+  }
+
+  mb_rtu_handle_rx_frame(slave);
+#endif
+}
+
+static void
+t35_timeout_handler(task_timer_t* te, void* unused)
+{
+  ModbusRTUMaster* master = container_of(te, ModbusRTUMaster, t35);
+
+  mb_rtu_start_handling_rx_frame(master);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,6 +127,9 @@ modbus_rtu_master_init(ModbusRTUMaster* master, int fd)
 
   master->stream.cb    = modbus_rtu_master_stream_callback;
   stream_init_with_fd(&master->stream, fd, master->rx_bounce_buf,  128, 512);
+
+  task_timer_init(&master->t35, t35_timeout_handler, NULL);
+  master->t35_val           = 5.0/1000;     // just 5ms max for every baud rate.
 }
 
 void

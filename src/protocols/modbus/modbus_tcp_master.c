@@ -29,6 +29,8 @@ modbus_tcp_master_request(ModbusMasterCTX* ctx, uint8_t slave)
 
   if(stream_write(&master->stream, ctx->tx_buf, ctx->tx_ndx) == false)
   {
+    //
+    // FIXME close stream and try to reconnect
     TRACE(MB_TCP_MASTER, "tx error\n");
   }
 }
@@ -43,20 +45,38 @@ modbus_tcp_master_stream_callback(stream_t* stream, stream_event_t evt)
 {
   ModbusTCPMaster*  master = container_of(stream, ModbusTCPMaster, stream);
 
-  UNUSED(master);
-
   switch(evt)
   {
   case stream_event_rx:
-    // XXX
-    // FIXME RX handling
-    //modbus_rtu_rx(slave);
+    mbap_reader_feed(&master->mbap_reader, stream->rx_buf, stream->rx_data_len);
+    break;
+
+  case stream_event_eof:
+  case stream_event_err:
+    //
+    // FIXME reconnect
+    //
     break;
 
   default:
     TRACE(MB_TCP_MASTER, "stream_event : %d\n", evt);
     break;
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// MBAP Reader Callback
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void
+modbus_tcp_master_got_frame(mbap_reader_t* mbap)
+{
+  /*
+  modbus_tcp_slave_handle_rx_frame(slave, conn);
+  */
+
+  // FIXME
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,6 +98,8 @@ modbus_tcp_master_tcp_connector_callback(tcp_auto_connector_t* con, int sd)
     master->stream.cb    = modbus_tcp_master_stream_callback;
     stream_init_with_fd(&master->stream, sd, master->rx_bounce_buf,  128, 512);
     stream_start(&master->stream);
+    
+    mbap_reader_init(&master->mbap_reader, modbus_tcp_master_got_frame);
   }
   else
   {
