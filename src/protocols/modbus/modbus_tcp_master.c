@@ -12,10 +12,30 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static void
+modbus_tcp_master_start_reconnect(ModbusTCPMaster* master)
+{
+  stream_deinit(&master->stream);
+  mbap_reader_reset(&master->mbap_reader);
+
+  master->tcp_state   = ModbusTCPMasterState_Connecting;
+
+  tcp_auto_connector_init(&master->tcp_connector, &master->server_addr,
+      MODBUS_TCP_MASTER_CONNECT_TIMEOUT,
+      MODBUS_TCP_MASTER_PROBATION_TIMEOUT);
+  tcp_auto_connector_start(&master->tcp_connector);
+}
+
+static void
 modbus_tcp_master_request(ModbusMasterCTX* ctx, uint8_t slave)
 {
   ModbusTCPMaster*  master = container_of(ctx, ModbusTCPMaster, ctx);
-  uint16_t          frame_len = ctx->tx_ndx + 1;    // + slave
+  uint16_t          frame_len = ctx->tx_ndx + 1 - 7;    // + slave
+
+  if(master->tcp_state != ModbusTCPMasterState_Connected)
+  {
+    TRACE(MB_TCP_MASTER, "modbus request when TCP not connected \n");
+    return;
+  }
 
   ctx->tx_buf[0]    = (uint8_t)(master->tid >> 8);
   ctx->tx_buf[1]    = (uint8_t)(master->tid & 0xff);
@@ -29,10 +49,11 @@ modbus_tcp_master_request(ModbusMasterCTX* ctx, uint8_t slave)
 
   if(stream_write(&master->stream, ctx->tx_buf, ctx->tx_ndx) == false)
   {
-    //
-    // FIXME close stream and try to reconnect
     TRACE(MB_TCP_MASTER, "tx error\n");
+    modbus_tcp_master_start_reconnect(master);
   }
+
+  master->tid++;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,9 +74,7 @@ modbus_tcp_master_stream_callback(stream_t* stream, stream_event_t evt)
 
   case stream_event_eof:
   case stream_event_err:
-    //
-    // FIXME reconnect
-    //
+    modbus_tcp_master_start_reconnect(master);
     break;
 
   default:
@@ -72,11 +91,23 @@ modbus_tcp_master_stream_callback(stream_t* stream, stream_event_t evt)
 static void
 modbus_tcp_master_got_frame(mbap_reader_t* mbap)
 {
-  /*
-  modbus_tcp_slave_handle_rx_frame(slave, conn);
-  */
+  ModbusTCPMaster* master = container_of(mbap, ModbusTCPMaster, mbap_reader);
 
-  // FIXME
+  TRACE_DUMP(MB_TCP_MASTER, "MB TCP Master RX", mbap->frame, mbap->ndx);
+
+  if((master->tid - 1) != mbap->tid)
+  {
+    TRACE(MB_TCP_MASTER, "TID Mismatch %d, %d\n", (master->tid - 1), mbap->tid);
+    return;
+  }
+
+  if(master->pid != mbap->pid)
+  {
+    TRACE(MB_TCP_MASTER, "PID Mismatch %d, %d\n", master->pid, mbap->pid);
+    return;
+  }
+
+  mb_master_handle_response(&master->ctx, mbap->uid, &mbap->frame[7], (int)mbap->length - 1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,6 +165,7 @@ modbus_tcp_master_init(ModbusTCPMaster* master, struct sockaddr_in*  server_addr
 void
 modbus_tcp_master_start(ModbusTCPMaster* master)
 {
+  master->tcp_state = ModbusTCPMasterState_Connecting;
   tcp_auto_connector_start(&master->tcp_connector);
 }
 

@@ -18,7 +18,18 @@ static task_t     _mb_master_task =
   .start  = modbus_master_task_start,
 };
 
-static ModbusTCPMaster   _tcp_master;
+static ModbusTCPMaster    _tcp_master;
+static task_timer_t       _req_timer;
+
+
+static void
+req_timer_handler(task_timer_t* te, void* unused)
+{
+  TRACE(MAIN, "%s sending modbus request\n", __func__);
+
+  mb_master_read_coils_req(&_tcp_master.ctx, 2, 1000, 16);
+  task_timer_restart(&_req_timer, 1.0, 0);
+}
 
 static void
 modbus_master_task_start(task_t* task)
@@ -35,6 +46,10 @@ modbus_master_task_start(task_t* task)
   server_addr.sin_addr.s_addr  = inet_addr("127.0.0.1");
   server_addr.sin_port         = htons(12345);
 #endif
+
+  task_timer_init(&_req_timer, req_timer_handler, NULL);
+
+  task_timer_restart(&_req_timer, 1.0, 0);
 
   modbus_tcp_master_init(&_tcp_master,  &server_addr);
   modbus_tcp_master_start(&_tcp_master);
