@@ -2,6 +2,7 @@
 #include "common.h"
 #include "trace.h"
 #include "modbus_tcp_master.h"
+#include "modbus_rtu_response_handler.h"
 
 #define MODBUS_TCP_MASTER_CONNECT_TIMEOUT       5.0
 #define MODBUS_TCP_MASTER_PROBATION_TIMEOUT     1.0
@@ -107,7 +108,7 @@ modbus_tcp_master_got_frame(mbap_reader_t* mbap)
     return;
   }
 
-  mb_master_handle_response(&master->ctx, mbap->uid, &mbap->frame[7], (int)mbap->length - 1);
+  modbus_rtu_handler_response_rx(&master->ctx, mbap->uid, &mbap->frame[7], (int)mbap->length - 1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

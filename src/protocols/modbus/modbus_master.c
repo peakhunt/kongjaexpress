@@ -156,9 +156,3 @@ mb_master_write_and_read_registers(ModbusMasterCTX* ctx, uint8_t slave,
 
   ctx->request(ctx, slave);
 }
-
-void
-mb_master_handle_response(ModbusMasterCTX* ctx, uint8_t slave, uint8_t* pdu, int pdu_len)
-{
-  // FIXME
-}

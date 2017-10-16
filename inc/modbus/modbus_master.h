@@ -42,6 +42,5 @@ void mb_master_write_and_read_registers(ModbusMasterCTX* ctx, uint8_t slave,
     uint16_t write_addr, uint16_t nb_write, const uint16_t* values,
     uint16_t read_addr, uint16_t nb_read);
 
-void mb_master_handle_response(ModbusMasterCTX* ctx, uint8_t slave, uint8_t* pdu, int pdu_len);
 
 #endif /* !__MODBUS_MASTER_DEF_H__ */
