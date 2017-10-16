@@ -35,6 +35,7 @@ static uint32_t   _trace_init[] =
   TRACE_COMP(MB_RTU_SLAVE),
   TRACE_COMP(MB_RTU_MASTER),
   TRACE_COMP(MB_TCP_MASTER),
+  TRACE_COMP(MB_MASTER),
 };
 
 int

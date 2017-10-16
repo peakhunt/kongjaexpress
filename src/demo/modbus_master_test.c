@@ -21,13 +21,36 @@ static task_t     _mb_master_task =
 static ModbusTCPMaster    _tcp_master;
 static task_timer_t       _req_timer;
 
+static void
+input_regs_cb(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg, uint8_t* regs)
+{
+  TRACE(MAIN, "%s %d, %d, %d\n", __func__, slave, addr, nreg);
+}
+
+static void
+holding_regs_cb(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg, uint8_t* regs, MBRegisterMode mode)
+{
+  TRACE(MAIN, "%s %d, %d, %d\n", __func__, slave, addr, nreg);
+}
+
+static void
+coil_cb(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg, uint8_t* regs, MBRegisterMode mode)
+{
+  TRACE(MAIN, "%s %d, %d, %d\n", __func__, slave, addr, nreg);
+}
+
+static void
+discrete_cb(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg, uint8_t* regs)
+{
+  TRACE(MAIN, "%s %d, %d, %d\n", __func__, slave, addr, nreg);
+}
 
 static void
 req_timer_handler(task_timer_t* te, void* unused)
 {
   TRACE(MAIN, "%s sending modbus request\n", __func__);
 
-  mb_master_read_coils_req(&_tcp_master.ctx, 2, 1000, 16);
+  mb_master_read_coils_req(&_tcp_master.ctx, 2, 1000, 23);
   task_timer_restart(&_req_timer, 1.0, 0);
 }
 
@@ -50,6 +73,11 @@ modbus_master_task_start(task_t* task)
   task_timer_init(&_req_timer, req_timer_handler, NULL);
 
   task_timer_restart(&_req_timer, 1.0, 0);
+
+  _tcp_master.ctx.input_regs_cb   = input_regs_cb;
+  _tcp_master.ctx.holding_regs_cb = holding_regs_cb;
+  _tcp_master.ctx.coil_cb         = coil_cb;
+  _tcp_master.ctx.discrete_cb     = discrete_cb;
 
   modbus_tcp_master_init(&_tcp_master,  &server_addr);
   modbus_tcp_master_start(&_tcp_master);

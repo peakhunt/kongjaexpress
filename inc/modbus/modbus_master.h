@@ -15,14 +15,20 @@ struct __modbus_master_ctx
 
   uint8_t     pdu_offset;
 
-  // FIXME XXX
-  // response callbacks
-
-  // FIXME XXX
-  // transport delegates
   void (*request)(ModbusMasterCTX* ctx, uint8_t slave);
 
-  // FIXME XXX
+  uint8_t     req_func;
+  uint8_t     req_slave;
+  uint16_t    req_reg_addr;
+  uint16_t    req_nb;
+  uint16_t    req_value;
+
+  void (*input_regs_cb)(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg, uint8_t* regs);
+  void (*holding_regs_cb)(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg,
+      uint8_t* regs, MBRegisterMode mode);
+  void (*coil_cb)(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg, uint8_t* regs,
+      MBRegisterMode mode);
+  void (*discrete_cb)(ModbusMasterCTX* ctx, uint8_t slave, uint16_t addr, uint16_t nreg, uint8_t* regs);
 };
 
 

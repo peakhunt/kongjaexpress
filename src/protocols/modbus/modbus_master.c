@@ -38,6 +38,11 @@ mb_master_ctx_init(ModbusMasterCTX* ctx)
 void
 mb_master_read_coils_req(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_addr, uint16_t nb)
 {
+  ctx->req_func     = MB_FUNC_READ_COILS;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb       = nb;
+
   mb_master_fill_io_status_req(ctx, MB_FUNC_READ_COILS, reg_addr, nb);
   ctx->request(ctx, slave);
 }
@@ -45,6 +50,11 @@ mb_master_read_coils_req(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_addr,
 void
 mb_master_read_discrete_inputs(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_addr, uint16_t nb)
 {
+  ctx->req_func     = MB_FUNC_READ_DISCRETE_INPUTS;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb       = nb;
+
   mb_master_fill_io_status_req(ctx, MB_FUNC_READ_DISCRETE_INPUTS, reg_addr, nb);
   ctx->request(ctx, slave);
 }
@@ -52,6 +62,11 @@ mb_master_read_discrete_inputs(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg
 void
 mb_master_read_holding_registers(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_addr, uint16_t nb)
 {
+  ctx->req_func     = MB_FUNC_READ_HOLDING_REGISTER;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb       = nb;
+
   mb_master_fill_io_status_req(ctx, MB_FUNC_READ_HOLDING_REGISTER, reg_addr, nb);
   ctx->request(ctx, slave);
 }
@@ -59,6 +74,11 @@ mb_master_read_holding_registers(ModbusMasterCTX* ctx, uint8_t slave, uint16_t r
 void
 mb_master_read_input_registers(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_addr, uint16_t nb)
 {
+  ctx->req_func     = MB_FUNC_READ_INPUT_REGISTER;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb       = nb;
+
   mb_master_fill_io_status_req(ctx, MB_FUNC_READ_INPUT_REGISTER, reg_addr, nb);
   ctx->request(ctx, slave);
 }
@@ -66,6 +86,12 @@ mb_master_read_input_registers(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg
 void
 mb_master_write_single_coil(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_addr, uint8_t value)
 {
+  ctx->req_func     = MB_FUNC_WRITE_SINGLE_COIL;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb       = 1;
+  ctx->req_value    = value ? 0xff00 : 0x0000;
+
   mb_master_fill_io_status_req(ctx, MB_FUNC_WRITE_SINGLE_COIL, reg_addr, value ? 0xff00 : 0x0000);
   ctx->request(ctx, slave);
 }
@@ -73,6 +99,12 @@ mb_master_write_single_coil(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_ad
 void
 mb_master_write_single_register(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg_addr, uint16_t value)
 {
+  ctx->req_func     = MB_FUNC_WRITE_REGISTER;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb       = 1;
+  ctx->req_value    = value;
+
   mb_master_fill_io_status_req(ctx, MB_FUNC_WRITE_REGISTER, reg_addr, value);
   ctx->request(ctx, slave);
 }
@@ -84,6 +116,11 @@ mb_master_write_multiple_coils(ModbusMasterCTX* ctx, uint8_t slave, uint16_t reg
   uint8_t   byte_count,
             i;
   uint16_t  pos = 0;
+
+  ctx->req_func     = MB_FUNC_WRITE_MULTIPLE_COILS;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb        = nb;
 
   mb_master_fill_io_status_req(ctx, MB_FUNC_WRITE_MULTIPLE_COILS, reg_addr, nb);
 
@@ -116,6 +153,11 @@ mb_master_write_multiple_registers(ModbusMasterCTX* ctx, uint8_t slave, uint16_t
   uint8_t   byte_count;
   uint16_t  i;
 
+  ctx->req_func     = MB_FUNC_WRITE_MULTIPLE_REGISTERS;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = reg_addr;
+  ctx->req_nb       = nb;
+
   mb_master_fill_io_status_req(ctx, MB_FUNC_WRITE_MULTIPLE_REGISTERS, reg_addr, nb);
 
   byte_count = nb * 2;
@@ -137,6 +179,11 @@ mb_master_write_and_read_registers(ModbusMasterCTX* ctx, uint8_t slave,
 {
   uint8_t   byte_count;
   uint16_t  i;
+
+  ctx->req_func     = MB_FUNC_READWRITE_MULTIPLE_REGISTERS;
+  ctx->req_slave    = slave;
+  ctx->req_reg_addr = read_addr;
+  ctx->req_nb       = nb_read;
 
   mb_master_fill_io_status_req(ctx, MB_FUNC_READWRITE_MULTIPLE_REGISTERS, read_addr, nb_read);
 
